@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive } from "lucide-react";
 import type { MediaItem, CastMember, Comment } from "../lib/types";
 import { fetchDetails, fetchCredits } from "../lib/tmdb";
-import { SERVERS, getHdHub4uUrl, getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
+import { getHdHub4uUrl, getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
 import { storage } from "../lib/storage";
 import { supabase } from "../lib/supabase";
 import { useProfile } from "../context/ProfileContext";
@@ -29,25 +29,38 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Hindi Dubbed & Multi-Language Video Servers List
+  // 🎬 Fast & Working Video Servers List with Clear Labels
   const allServers = [
-    ...SERVERS,
     {
-      name: "Server 2 (Hindi / Multi)",
+      name: "Server 1 (Fast HD / Main)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pro/embed/movie/${id}`
+    },
+    {
+      name: "Server 2 (VidLink - Multi Audio)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://vidlink.pro/tv/${id}/${s}/${e}`
+          : `https://vidlink.pro/movie/${id}`
+    },
+    {
+      name: "Server 3 (Hindi / AutoEmbed)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
           : `https://player.autoembed.cc/embed/movie/${id}`
     },
     {
-      name: "Server 3 (Hindi Dubbed)",
+      name: "Server 4 (Embed.su - Subtitles)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://embed.smashystream.com/playere.php?tmdb=${id}&s=${s}&e=${e}`
-          : `https://embed.smashystream.com/playere.php?tmdb=${id}`
+          ? `https://embed.su/embed/tv/${id}/${s}/${e}`
+          : `https://embed.su/embed/movie/${id}`
     },
     {
-      name: "Server 4 (Backup Multi)",
+      name: "Server 5 (Backup Multi)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
