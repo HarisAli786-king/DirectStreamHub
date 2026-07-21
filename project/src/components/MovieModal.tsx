@@ -29,14 +29,14 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Fast & Tested Video Servers List (Fixed Hindi & Server 4)
+  // 🎬 Verified & Working Video Servers List
   const allServers = [
     {
-      name: "Server 1 (Fast HD / Main)",
+      name: "Server 1 (VidSrc ME - Fast)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.pro/embed/movie/${id}`
+          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
       name: "Server 2 (VidLink - Multi Audio)",
@@ -53,18 +53,18 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://multiembed.mov/?video_id=${id}&tmdb=1`
     },
     {
-      name: "Server 4 (VidSrc ME - Fast)",
+      name: "Server 4 (RiveStream - High Quality)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-          : `https://vidsrc.me/embed/movie?tmdb=${id}`
+          ? `https://rive.stream/embed/tv?tmdb=${id}&s=${s}&e=${e}`
+          : `https://rive.stream/embed/movie?tmdb=${id}`
     },
     {
-      name: "Server 5 (VidSrc CC - Backup)",
+      name: "Server 5 (SuperEmbed - Backup)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.cc/v2/embed/movie/${id}`
+          ? `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${s}&e=${e}`
+          : `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`
     }
   ];
 
