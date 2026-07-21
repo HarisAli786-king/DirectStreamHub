@@ -29,7 +29,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Fast & Working Video Servers List with Clear Labels
+  // 🎬 Fast & Tested Video Servers List (Fixed Hindi & Server 4)
   const allServers = [
     {
       name: "Server 1 (Fast HD / Main)",
@@ -46,25 +46,25 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://vidlink.pro/movie/${id}`
     },
     {
-      name: "Server 3 (Hindi / AutoEmbed)",
+      name: "Server 3 (MultiEmbed - Hindi / Multi)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
-          : `https://player.autoembed.cc/embed/movie/${id}`
+          ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
+          : `https://multiembed.mov/?video_id=${id}&tmdb=1`
     },
     {
-      name: "Server 4 (Embed.su - Subtitles)",
+      name: "Server 4 (VidSrc ME - Fast)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://embed.su/embed/tv/${id}/${s}/${e}`
-          : `https://embed.su/embed/movie/${id}`
+          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-      name: "Server 5 (Backup Multi)",
+      name: "Server 5 (VidSrc CC - Backup)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-          : `https://www.2embed.cc/embed/${id}`
+          ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.cc/v2/embed/movie/${id}`
     }
   ];
 
@@ -150,7 +150,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
               src={watchUrl}
               allowFullScreen
               allow="autoplay; encrypted-media; fullscreen"
-              className="w-full h-full"
+              className="w-full h-full border-0"
               referrerPolicy="origin"
             />
           </div>
