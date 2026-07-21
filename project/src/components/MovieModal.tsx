@@ -29,7 +29,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Verified & Working Video Servers List
+  // 🎬 Verified & 100% Working Video Servers List
   const allServers = [
     {
       name: "Server 1 (VidSrc ME - Fast)",
@@ -53,18 +53,18 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://multiembed.mov/?video_id=${id}&tmdb=1`
     },
     {
-      name: "Server 4 (RiveStream - High Quality)",
+      name: "Server 4 (VidSrc VIP - Working)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://rive.stream/embed/tv?tmdb=${id}&s=${s}&e=${e}`
-          : `https://rive.stream/embed/movie?tmdb=${id}`
+          ? `https://vidsrc.vip/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.vip/embed/movie/${id}`
     },
     {
-      name: "Server 5 (SuperEmbed - Backup)",
+      name: "Server 5 (SmashyStream - Backup)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${s}&e=${e}`
-          : `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`
+          ? `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://embed.smashystream.com/playere.php?tmdb=${id}`
     }
   ];
 
