@@ -53,11 +53,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://multiembed.mov/?video_id=${id}&tmdb=1`
     },
     {
-      name: "Server 4 (VidSrc VIP - Working)",
+      name: "Server 4 (AutoEmbed - Fast HD)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.vip/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.vip/embed/movie/${id}`
+          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
+          : `https://player.autoembed.cc/embed/movie/${id}`
     },
     {
       name: "Server 5 (SmashyStream - Backup)",
