@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+* { -webkit-tap-highlight-color: transparent; }
+html, body { background-color: #050505; color: #fff; font-family: "Inter", system-ui, sans-serif; margin: 0; padding: 0; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #e50914; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.row-scroll { scroll-behavior: smooth; }
+
+@layer components {
+  .btn-brand { @apply bg-brand-red hover:bg-brand-red-dark text-white font-semibold rounded-lg transition-colors duration-200; }
+  .btn-ghost { @apply bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg transition-colors duration-200; }
+  .card-hover { @apply transition-transform duration-300 ease-out hover:scale-[1.04] hover:z-10; }
+}
+.fade-in { animation: fadeIn 0.3s ease-out; }
