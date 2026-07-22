@@ -30,7 +30,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [fav, setFav] = useState(false);
 
   // Check if current item is Anime (based on genres containing Animation or explicit tag)
-  const isAnime = details?.genres?.some(g => g.name.toLowerCase() === "animation") || item?.genre_ids?.includes(16);
+  const isAnime = details?.genres?.some(g => g.name.toLowerCase() === "animation") || (item as any)?.genre_ids?.includes(16);
 
   // 🎬 Standard Movie/TV Servers (1 to 6)
   const standardServers = [
