@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film } from "lucide-react";
 import type { MediaItem, CastMember, Comment } from "../lib/types";
 import { fetchDetails, fetchCredits } from "../lib/tmdb";
-import { getHdHub4uUrl, getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
+import { getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
 import { storage } from "../lib/storage";
 import { supabase } from "../lib/supabase";
 import { useProfile } from "../context/ProfileContext";
@@ -29,42 +29,42 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Top Working Multi-Audio & Hindi Supported Streaming Servers
+  // 🎬 Video Servers List (Server 1 ORIGINAL - VidSrc ME)
   const allServers = [
     {
-      name: "Server 1 (VidSrc Pro - Ultra Fast)",
+      name: "Server 1 (VidSrc ME - Fast)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.pro/embed/movie/${id}`
+          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-      name: "Server 2 (VidLink - Multi-Audio / Hindi)",
+      name: "Server 2 (VidLink - Multi Audio)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://vidlink.pro/tv/${id}/${s}/${e}`
           : `https://vidlink.pro/movie/${id}`
     },
     {
-      name: "Server 3 (Embed.su - High Quality HD)",
+      name: "Server 3 (VidSrc Pro - Smooth)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pro/embed/movie/${id}`
+    },
+    {
+      name: "Server 4 (Embed.su - High HD)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://embed.su/embed/tv/${id}/${s}/${e}`
           : `https://embed.su/embed/movie/${id}`
     },
     {
-      name: "Server 4 (AutoEmbed - Fast Direct)",
+      name: "Server 5 (AutoEmbed - Direct)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
           : `https://player.autoembed.cc/embed/movie/${id}`
-    },
-    {
-      name: "Server 5 (VidSrc.me - Global Backup)",
-      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
-        mediaType === "tv"
-          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-          : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
       name: "Server 6 (2Embed - Global)",
@@ -139,7 +139,6 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
   };
 
-  // Player Watch Link Priority
   const watchUrl =
     item.custom && item.customWatchLink
       ? item.customWatchLink
@@ -149,17 +148,15 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // Search Engine Fallback Links
+  // 📥 HDHub4u Quality Download Search Links (480p, 720p, 1080p)
+  const queryTitle = item.title;
+  const dl480 = (item as any).dl_480p || (item as any).dl_480 || `https://hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
+  const dl720 = (item as any).dl_720p || (item as any).dl_720 || `https://hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
+  const dl1080 = (item as any).dl_1080p || (item as any).dl_1080 || `https://hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 1080p")}`;
+
   const customFallback = item.custom && item.customWatchLink ? item.customWatchLink : null;
-  const hdhub4uUrl = customFallback || getHdHub4uUrl(item.title, item.mediaType);
   const archiveUrl = customFallback || getArchiveUrl(item.title);
   const filmyzillaUrl = customFallback || getFilmyzillaUrl(item.title, item.mediaType);
-
-  // Dynamic Custom Links from Database (if available)
-  const dl480 = (item as any).dl_480p || (item as any).dl_480;
-  const dl720 = (item as any).dl_720p || (item as any).dl_720;
-  const dl1080 = (item as any).dl_1080p || (item as any).dl_1080;
-  const hasCustomDownloads = dl480 || dl720 || dl1080;
 
   return (
     <div
@@ -306,82 +303,68 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </button>
           </div>
 
-          {/* 📥 Quality Download Options Section */}
+          {/* 📥 HDHub4u Multi-Quality Download Section */}
           <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
-              <Download className="w-4 h-4 text-brand-red" /> Download Options (Hindi / Dual Audio & Multi-Quality)
+              <Download className="w-4 h-4 text-brand-red" /> HDHub4u Download Options (Hindi / Dual Audio)
             </h3>
 
-            {/* Custom DB Links (Agar database mein links majood hon) */}
-            {hasCustomDownloads && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                {dl480 && (
-                  <a
-                    href={dl480}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-blue-400 transition"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Film className="w-4 h-4" /> 480p (SD Quality)
-                    </span>
-                    <Download className="w-4 h-4 text-white" />
-                  </a>
-                )}
-                {dl720 && (
-                  <a
-                    href={dl720}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-green-400 transition"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Film className="w-4 h-4" /> 720p (HD Quality)
-                    </span>
-                    <Download className="w-4 h-4 text-white" />
-                  </a>
-                )}
-                {dl1080 && (
-                  <a
-                    href={dl1080}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-purple-400 transition"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Film className="w-4 h-4" /> 1080p (Full HD)
-                    </span>
-                    <Download className="w-4 h-4 text-white" />
-                  </a>
-                )}
-              </div>
-            )}
-
-            {/* External Backup Search Download Portals */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* 480p, 720p, 1080p Separate Download Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
               <a
-                href={hdhub4uUrl}
+                href={dl480}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition"
+                className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-blue-400 transition shadow-md"
               >
-                <Download className="h-4 w-4" /> HDHub4u
+                <span className="flex items-center gap-2">
+                  <Film className="w-4 h-4" /> 480p SD (HDHub4u)
+                </span>
+                <Download className="w-4 h-4 text-white" />
               </a>
+
+              <a
+                href={dl720}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-emerald-400 transition shadow-md"
+              >
+                <span className="flex items-center gap-2">
+                  <Film className="w-4 h-4" /> 720p HD (HDHub4u)
+                </span>
+                <Download className="w-4 h-4 text-white" />
+              </a>
+
+              <a
+                href={dl1080}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-purple-400 transition shadow-md"
+              >
+                <span className="flex items-center gap-2">
+                  <Film className="w-4 h-4" /> 1080p Full HD (HDHub4u)
+                </span>
+                <Download className="w-4 h-4 text-white" />
+              </a>
+            </div>
+
+            {/* Backup Mirrors */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <a
                 href={filmyzillaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-lg bg-purple-600 hover:bg-purple-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition"
+                className="flex items-center justify-center gap-2 rounded-lg bg-purple-600/80 hover:bg-purple-600 px-4 py-2.5 text-xs font-bold text-white transition"
               >
-                <Download className="h-4 w-4" /> Filmyzilla
+                <Download className="h-4 w-4" /> Filmyzilla Mirror
               </a>
               <a
                 href={archiveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition"
+                className="flex items-center justify-center gap-2 rounded-lg bg-blue-600/80 hover:bg-blue-600 px-4 py-2.5 text-xs font-bold text-white transition"
               >
-                <Archive className="h-4 w-4" /> Internet Archive
+                <Archive className="h-4 w-4" /> Internet Archive Mirror
               </a>
             </div>
           </div>
