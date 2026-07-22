@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive } from "lucide-react";
+import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film } from "lucide-react";
 import type { MediaItem, CastMember, Comment } from "../lib/types";
 import { fetchDetails, fetchCredits } from "../lib/tmdb";
 import { getHdHub4uUrl, getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
@@ -29,38 +29,45 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Video Servers List (Server 1 original & untouched)
+  // 🎬 Top Working Multi-Audio & Hindi Supported Streaming Servers
   const allServers = [
     {
-      name: "Server 1 (VidSrc ME - Fast)",
+      name: "Server 1 (VidSrc Pro - Ultra Fast)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-          : `https://vidsrc.me/embed/movie?tmdb=${id}`
+          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pro/embed/movie/${id}`
     },
     {
-      name: "Server 2 (Embed.su - Fast HD)",
+      name: "Server 2 (VidLink - Multi-Audio / Hindi)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://vidlink.pro/tv/${id}/${s}/${e}`
+          : `https://vidlink.pro/movie/${id}`
+    },
+    {
+      name: "Server 3 (Embed.su - High Quality HD)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://embed.su/embed/tv/${id}/${s}/${e}`
           : `https://embed.su/embed/movie/${id}`
     },
     {
-      name: "Server 3 (AutoEmbed - Direct)",
+      name: "Server 4 (AutoEmbed - Fast Direct)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
-          : `https://autoembed.co/movie/tmdb/${id}`
+          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
+          : `https://player.autoembed.cc/embed/movie/${id}`
     },
     {
-      name: "Server 4 (SmashyStream - Multi)",
+      name: "Server 5 (VidSrc.me - Global Backup)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${s}&episode=${e}`
-          : `https://embed.smashystream.com/playere.php?tmdb=${id}`
+          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-      name: "Server 5 (2Embed - Global)",
+      name: "Server 6 (2Embed - Global)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
@@ -79,8 +86,16 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     setLoading(true);
     setDetails(null);
     setCast([]);
-    fetchDetails(item.id, item.mediaType).then((d) => setDetails(d)).catch(() => {}).finally(() => setLoading(false));
-    fetchCredits(item.id, item.mediaType).then(setCast).catch(() => {});
+
+    fetchDetails(item.id, item.mediaType)
+      .then((d) => setDetails(d))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+
+    fetchCredits(item.id, item.mediaType)
+      .then(setCast)
+      .catch(() => {});
+
     supabase
       .from("comments")
       .select("id, media_id, user_name, user_avatar, text, created_at")
@@ -105,6 +120,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
     if (!commentText.trim()) return;
     setPosting(true);
+
     const { data, error } = await supabase
       .from("comments")
       .insert({
@@ -115,6 +131,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
       })
       .select("id, media_id, user_name, user_avatar, text, created_at")
       .single();
+
     setPosting(false);
     if (!error && data) {
       setComments((prev) => [data as Comment, ...prev]);
@@ -122,6 +139,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
   };
 
+  // Player Watch Link Priority
   const watchUrl =
     item.custom && item.customWatchLink
       ? item.customWatchLink
@@ -131,18 +149,35 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
+  // Search Engine Fallback Links
   const customFallback = item.custom && item.customWatchLink ? item.customWatchLink : null;
   const hdhub4uUrl = customFallback || getHdHub4uUrl(item.title, item.mediaType);
   const archiveUrl = customFallback || getArchiveUrl(item.title);
   const filmyzillaUrl = customFallback || getFilmyzillaUrl(item.title, item.mediaType);
 
+  // Dynamic Custom Links from Database (if available)
+  const dl480 = (item as any).dl_480p || (item as any).dl_480;
+  const dl720 = (item as any).dl_720p || (item as any).dl_720;
+  const dl1080 = (item as any).dl_1080p || (item as any).dl_1080;
+  const hasCustomDownloads = dl480 || dl720 || dl1080;
+
   return (
-    <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-black/80 backdrop-blur-sm animate-fade-in p-2 sm:p-4" onClick={onClose}>
-      <div className="relative bg-base-card rounded-2xl max-w-4xl w-full my-4 overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-3 right-3 z-20 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white">
+    <div
+      className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-black/80 backdrop-blur-sm animate-fade-in p-2 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative bg-base-card rounded-2xl max-w-4xl w-full my-4 overflow-hidden animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-20 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition"
+        >
           <X className="w-5 h-5" />
         </button>
 
+        {/* Video Player Section */}
         {playing ? (
           <div className="relative w-full aspect-video bg-black">
             <iframe
@@ -156,7 +191,9 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           </div>
         ) : (
           <div className="relative w-full aspect-video bg-black">
-            {item.backdrop && <img src={item.backdrop} alt={item.title} className="w-full h-full object-cover opacity-60" />}
+            {item.backdrop && (
+              <img src={item.backdrop} alt={item.title} className="w-full h-full object-cover opacity-60" />
+            )}
             <div className="absolute inset-0 flex items-center justify-center">
               <button onClick={() => setPlaying(true)} className="btn-brand px-8 py-4 flex items-center gap-2 text-lg">
                 <Play className="w-6 h-6 fill-white" /> Watch Now
@@ -165,8 +202,9 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           </div>
         )}
 
+        {/* Server & Season Selector */}
         {playing && !(item.custom && item.customWatchLink) && (
-          <div className="px-4 sm:px-6 py-3 border-b border-white/5 flex flex-wrap items-center gap-3">
+          <div className="px-4 sm:px-6 py-3 border-b border-white/5 flex flex-wrap items-center justify-between gap-3 bg-zinc-900/50">
             <div className="flex gap-1.5 flex-wrap">
               {allServers.map((s, i) => (
                 <button
@@ -180,6 +218,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 </button>
               ))}
             </div>
+
             {item.mediaType === "tv" && (
               <div className="flex items-center gap-2 ml-auto">
                 <div className="relative">
@@ -191,11 +230,17 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                     }}
                     className="appearance-none bg-base-hover text-white text-xs rounded-lg pl-3 pr-8 py-1.5 border border-white/10 cursor-pointer"
                   >
-                    {seasons.map((s) => (
-                      <option key={s.season_number} value={s.season_number}>
-                        S{s.season_number}
-                      </option>
-                    ))}
+                    {seasons.length > 0
+                      ? seasons.map((s) => (
+                          <option key={s.season_number} value={s.season_number}>
+                            Season {s.season_number}
+                          </option>
+                        ))
+                      : [1, 2, 3, 4, 5].map((s) => (
+                          <option key={s} value={s}>
+                            Season {s}
+                          </option>
+                        ))}
                   </select>
                   <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -207,7 +252,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                   >
                     {Array.from({ length: episodeCount }).map((_, i) => (
                       <option key={i} value={i + 1}>
-                        E{i + 1}
+                        Episode {i + 1}
                       </option>
                     ))}
                   </select>
@@ -218,6 +263,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           </div>
         )}
 
+        {/* Details Section */}
         <div className="p-4 sm:p-6">
           <div className="flex items-start gap-4">
             <div className="hidden sm:block w-24 shrink-0">
@@ -232,7 +278,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                     <Star className="w-4 h-4 text-brand-red fill-brand-red" /> {item.rating.toFixed(1)}
                   </span>
                 )}
-                {details?.runtime && <span>{details.runtime} min</span>}
+                {details?.runtime ? <span>{details.runtime} min</span> : null}
                 {details?.genres?.slice(0, 3).map((g) => (
                   <span key={g.id} className="px-2 py-0.5 bg-white/10 rounded text-xs">
                     {g.name}
@@ -243,6 +289,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 mt-5">
             {!playing && (
               <button onClick={() => setPlaying(true)} className="btn-brand px-5 py-2.5 flex items-center gap-2">
@@ -259,25 +306,89 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </button>
           </div>
 
-          <div className="mt-6">
+          {/* 📥 Quality Download Options Section */}
+          <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
-              <Download className="w-4 h-4 text-brand-red" /> Download Options
+              <Download className="w-4 h-4 text-brand-red" /> Download Options (Hindi / Dual Audio & Multi-Quality)
             </h3>
+
+            {/* Custom DB Links (Agar database mein links majood hon) */}
+            {hasCustomDownloads && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                {dl480 && (
+                  <a
+                    href={dl480}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-blue-400 transition"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Film className="w-4 h-4" /> 480p (SD Quality)
+                    </span>
+                    <Download className="w-4 h-4 text-white" />
+                  </a>
+                )}
+                {dl720 && (
+                  <a
+                    href={dl720}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-green-400 transition"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Film className="w-4 h-4" /> 720p (HD Quality)
+                    </span>
+                    <Download className="w-4 h-4 text-white" />
+                  </a>
+                )}
+                {dl1080 && (
+                  <a
+                    href={dl1080}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-purple-400 transition"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Film className="w-4 h-4" /> 1080p (Full HD)
+                    </span>
+                    <Download className="w-4 h-4 text-white" />
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* External Backup Search Download Portals */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <a href={hdhub4uUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-green-500">
+              <a
+                href={hdhub4uUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition"
+              >
                 <Download className="h-4 w-4" /> HDHub4u
               </a>
-              <a href={archiveUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500">
-                <Archive className="h-4 w-4" /> Internet Archive
-              </a>
-              <a href={filmyzillaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-purple-500">
+              <a
+                href={filmyzillaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 rounded-lg bg-purple-600 hover:bg-purple-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition"
+              >
                 <Download className="h-4 w-4" /> Filmyzilla
+              </a>
+              <a
+                href={archiveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition"
+              >
+                <Archive className="h-4 w-4" /> Internet Archive
               </a>
             </div>
           </div>
 
+          {/* Cast Section */}
           {cast.length > 0 && (
-            <div className="mt-6">
+            <div className="mt-6 border-t border-white/10 pt-5">
               <h3 className="text-sm font-bold mb-3 text-white/80">Cast & Crew</h3>
               {loading ? (
                 <Loader2 className="w-5 h-5 text-brand-red animate-spin" />
@@ -289,7 +400,9 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                         {c.profile ? (
                           <img src={c.profile} alt={c.name} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white/30 text-xs">{c.name[0]}</div>
+                          <div className="w-full h-full flex items-center justify-center text-white/30 text-xs">
+                            {c.name[0]}
+                          </div>
                         )}
                       </div>
                       <p className="text-xs font-medium truncate">{c.name}</p>
@@ -301,7 +414,8 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </div>
           )}
 
-          <div className="mt-6">
+          {/* Comments Section */}
+          <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80">Comments ({comments.length})</h3>
             <div className="flex gap-2 mb-3">
               <input
@@ -311,7 +425,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 placeholder={profile ? "Write a comment..." : "Create a profile to comment"}
                 className="flex-1 bg-base-hover text-white text-sm rounded-lg px-3 py-2 border border-white/10 outline-none focus:border-brand-red"
               />
-              <button onClick={submitComment} disabled={posting} className="btn-brand px-4 py-2 flex items-center gap-1 disabled:opacity-50">
+              <button
+                onClick={submitComment}
+                disabled={posting}
+                className="btn-brand px-4 py-2 flex items-center gap-1 disabled:opacity-50"
+              >
                 {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} Post
               </button>
             </div>
@@ -321,7 +439,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
               ) : (
                 comments.map((c) => (
                   <div key={c.id} className="flex gap-2.5">
-                    <img src={c.user_avatar} alt={c.user_name} className="w-8 h-8 rounded-full shrink-0 bg-base-hover" />
+                    <img
+                      src={c.user_avatar}
+                      alt={c.user_name}
+                      className="w-8 h-8 rounded-full shrink-0 bg-base-hover"
+                    />
                     <div className="bg-base-hover rounded-lg px-3 py-2 flex-1">
                       <p className="text-xs font-semibold mb-0.5">{c.user_name}</p>
                       <p className="text-sm text-white/80">{c.text}</p>
