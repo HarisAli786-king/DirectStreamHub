@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film } from "lucide-react";
+import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film, Tv } from "lucide-react";
 import type { MediaItem, CastMember, Comment } from "../lib/types";
 import { fetchDetails, fetchCredits } from "../lib/tmdb";
 import { getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
@@ -29,7 +29,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Verified High-Speed Working Streaming Servers
+  // 🎬 Verified High-Speed Streaming Servers (Movies, TV & Anime Salt)
   const allServers = [
     {
       name: "Server 1 (VidSrc ME)",
@@ -46,25 +46,25 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://vidlink.pro/movie/${id}`
     },
     {
-      name: "Server 3 (Embed Su)",
+      name: "Server 3 (2Embed Global)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://embed.su/embed/tv/${id}/${s}/${e}`
-          : `https://embed.su/embed/movie/${id}`
+          ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
+          : `https://www.2embed.cc/embed/${id}`
     },
     {
-      name: "Server 4 (AutoEmbed)",
+      name: "Server 4 (Anime Salt playX)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
-          : `https://player.autoembed.cc/embed/movie/${id}`
+          ? `https://animesalt.link/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://animesalt.link/embed/movie?tmdb=${id}`
     },
     {
-      name: "Server 5 (MultiEmbed)",
+      name: "Server 5 (Anime Salt Abyss)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
-          : `https://multiembed.mov/?video_id=${id}&tmdb=1`
+          ? `https://animesalt.link/embed/abyss/tv/${id}/${s}/${e}`
+          : `https://animesalt.link/embed/abyss/movie/${id}`
     }
   ];
 
@@ -141,11 +141,12 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // 📥 Working Download URLs with Live Domain Search
+  // 📥 Working Download URLs with Live Domain Search (HDHub4u & Anime Salt)
   const queryTitle = item.title;
   const dl480 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
   const dl720 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
   const dl1080 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 1080p")}`;
+  const animeSaltDl = `https://animesalt.link/search?q=${encodeURIComponent(queryTitle)}`;
 
   const customFallback = item.custom && item.customWatchLink ? item.customWatchLink : null;
   const archiveUrl = customFallback || getArchiveUrl(item.title);
@@ -296,13 +297,13 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </button>
           </div>
 
-          {/* 📥 Download Options */}
+          {/* 📥 Download Options (HDHub4u & Anime Salt) */}
           <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
-              <Download className="w-4 h-4 text-brand-red" /> Download Options (HDHub4u)
+              <Download className="w-4 h-4 text-brand-red" /> Download Options (HDHub4u & Anime Salt)
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <a
                 href={dl480}
                 target="_blank"
@@ -340,7 +341,15 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
               </a>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <a
+                href={animeSaltDl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 rounded-lg bg-red-600/80 hover:bg-red-600 px-4 py-2.5 text-xs font-bold text-white transition shadow-md"
+              >
+                <Tv className="h-4 w-4" /> Anime Salt Download
+              </a>
               <a
                 href={filmyzillaUrl}
                 target="_blank"
@@ -355,7 +364,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 rounded-lg bg-blue-600/80 hover:bg-blue-600 px-4 py-2.5 text-xs font-bold text-white transition"
               >
-                <Archive className="h-4 w-4" /> Internet Archive Mirror
+                <Archive className="h-4 w-4" /> Internet Archive
               </a>
             </div>
           </div>
