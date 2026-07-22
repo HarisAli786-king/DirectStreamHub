@@ -29,49 +29,42 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Video Servers List (Server 1 ORIGINAL - VidSrc ME)
+  // 🎬 Verified High-Speed Working Streaming Servers
   const allServers = [
     {
-      name: "Server 1 (VidSrc ME - Fast)",
+      name: "Server 1 (VidSrc ME)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
           : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-      name: "Server 2 (VidLink - Multi Audio)",
+      name: "Server 2 (VidLink Pro)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://vidlink.pro/tv/${id}/${s}/${e}`
           : `https://vidlink.pro/movie/${id}`
     },
     {
-      name: "Server 3 (VidSrc Pro - Smooth)",
-      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
-        mediaType === "tv"
-          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.pro/embed/movie/${id}`
-    },
-    {
-      name: "Server 4 (Embed.su - High HD)",
+      name: "Server 3 (Embed Su)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://embed.su/embed/tv/${id}/${s}/${e}`
           : `https://embed.su/embed/movie/${id}`
     },
     {
-      name: "Server 5 (AutoEmbed - Direct)",
+      name: "Server 4 (AutoEmbed)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
           : `https://player.autoembed.cc/embed/movie/${id}`
     },
     {
-      name: "Server 6 (2Embed - Global)",
+      name: "Server 5 (MultiEmbed)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-          : `https://www.2embed.cc/embed/${id}`
+          ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
+          : `https://multiembed.mov/?video_id=${id}&tmdb=1`
     }
   ];
 
@@ -148,11 +141,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // 📥 HDHub4u Quality Download Search Links (480p, 720p, 1080p)
+  // 📥 Working Download URLs with Live Domain Search
   const queryTitle = item.title;
-  const dl480 = (item as any).dl_480p || (item as any).dl_480 || `https://hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
-  const dl720 = (item as any).dl_720p || (item as any).dl_720 || `https://hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
-  const dl1080 = (item as any).dl_1080p || (item as any).dl_1080 || `https://hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 1080p")}`;
+  const dl480 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
+  const dl720 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
+  const dl1080 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 1080p")}`;
 
   const customFallback = item.custom && item.customWatchLink ? item.customWatchLink : null;
   const archiveUrl = customFallback || getArchiveUrl(item.title);
@@ -303,13 +296,12 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </button>
           </div>
 
-          {/* 📥 HDHub4u Multi-Quality Download Section */}
+          {/* 📥 Download Options */}
           <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
-              <Download className="w-4 h-4 text-brand-red" /> HDHub4u Download Options (Hindi / Dual Audio)
+              <Download className="w-4 h-4 text-brand-red" /> Download Options (HDHub4u)
             </h3>
 
-            {/* 480p, 720p, 1080p Separate Download Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
               <a
                 href={dl480}
@@ -318,7 +310,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-blue-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 480p SD (HDHub4u)
+                  <Film className="w-4 h-4" /> 480p SD
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
@@ -330,7 +322,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-emerald-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 720p HD (HDHub4u)
+                  <Film className="w-4 h-4" /> 720p HD
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
@@ -342,13 +334,12 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-purple-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 1080p Full HD (HDHub4u)
+                  <Film className="w-4 h-4" /> 1080p FHD
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
             </div>
 
-            {/* Backup Mirrors */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <a
                 href={filmyzillaUrl}
