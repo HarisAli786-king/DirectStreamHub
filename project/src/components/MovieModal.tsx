@@ -29,7 +29,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Verified & 100% Working Video Servers List
+  // 🎬 Verified & Direct Play Video Servers List
   const allServers = [
     {
       name: "Server 1 (VidSrc ME - Fast)",
@@ -39,32 +39,32 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-      name: "Server 2 (VidLink - Multi Audio)",
+      name: "Server 2 (VidSrc Pro - Smooth)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidlink.pro/tv/${id}/${s}/${e}`
-          : `https://vidlink.pro/movie/${id}`
+          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pro/embed/movie/${id}`
     },
     {
-      name: "Server 3 (MultiEmbed - Hindi / Multi)",
+      name: "Server 3 (VidSrc CC - Fast)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
-          : `https://multiembed.mov/?video_id=${id}&tmdb=1`
+          ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.cc/v2/embed/movie/${id}`
     },
     {
-      name: "Server 4 (AutoEmbed - Fast HD)",
+      name: "Server 4 (MoviesAPI - Direct)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
-          : `https://player.autoembed.cc/embed/movie/${id}`
+          ? `https://moviesapi.club/tv/${id}-${s}-${e}`
+          : `https://moviesapi.club/movie/${id}`
     },
     {
-      name: "Server 5 (SmashyStream - Backup)",
+      name: "Server 5 (SuperEmbed - Backup)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${s}&episode=${e}`
-          : `https://embed.smashystream.com/playere.php?tmdb=${id}`
+          ? `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${s}&e=${e}`
+          : `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`
     }
   ];
 
