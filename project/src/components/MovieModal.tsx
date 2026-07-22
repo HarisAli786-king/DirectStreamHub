@@ -29,8 +29,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // 🎬 Verified High-Speed Streaming Servers (Movies, TV & Anime Salt)
-  const allServers = [
+  // Check if current item is Anime (based on genres containing Animation or explicit tag)
+  const isAnime = details?.genres?.some(g => g.name.toLowerCase() === "animation") || item?.genre_ids?.includes(16);
+
+  // 🎬 Standard Movie/TV Servers (1 to 6)
+  const standardServers = [
     {
       name: "Server 1 (VidSrc ME)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
@@ -53,20 +56,48 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://www.2embed.cc/embed/${id}`
     },
     {
-      name: "Server 4 (Anime Salt playX)",
+      name: "Server 4 (Embed Su)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://embed.su/embed/tv/${id}/${s}/${e}`
+          : `https://embed.su/embed/movie/${id}`
+    },
+    {
+      name: "Server 5 (AutoEmbed)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
+          : `https://player.autoembed.cc/embed/movie/${id}`
+    },
+    {
+      name: "Server 6 (MultiEmbed)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
+          : `https://multiembed.mov/?video_id=${id}&tmdb=1`
+    }
+  ];
+
+  // 🌸 Dedicated Separate Anime Servers (Anime Salt playX & Abyss)
+  const animeServers = [
+    {
+      name: "Anime Server 1 (Anime Salt playX)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://animesalt.link/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
           : `https://animesalt.link/embed/movie?tmdb=${id}`
     },
     {
-      name: "Server 5 (Anime Salt Abyss)",
+      name: "Anime Server 2 (Anime Salt Abyss)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://animesalt.link/embed/abyss/tv/${id}/${s}/${e}`
           : `https://animesalt.link/embed/abyss/movie/${id}`
     }
   ];
+
+  // Combine or choose active servers based on content type
+  const allServers = isAnime ? [...animeServers, ...standardServers] : standardServers;
 
   useEffect(() => {
     if (!item) return;
@@ -141,7 +172,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // 📥 Working Download URLs with Live Domain Search (HDHub4u & Anime Salt)
+  // 📥 Download Links (HDHub4u & Dedicated Anime Salt Download)
   const queryTitle = item.title;
   const dl480 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
   const dl720 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
@@ -297,12 +328,30 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </button>
           </div>
 
-          {/* 📥 Download Options (HDHub4u & Anime Salt) */}
+          {/* 📥 Separate Download Options for Movies (HDHub4u) & Anime (Anime Salt) */}
           <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
-              <Download className="w-4 h-4 text-brand-red" /> Download Options (HDHub4u & Anime Salt)
+              <Download className="w-4 h-4 text-brand-red" /> Download Options
             </h3>
 
+            {/* Anime Dedicated Download Button (Shows if Anime) */}
+            {isAnime && (
+              <div className="mb-3">
+                <a
+                  href={animeSaltDl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between rounded-lg bg-red-600/90 hover:bg-red-600 border border-white/10 px-4 py-3 text-sm font-bold text-white transition shadow-md"
+                >
+                  <span className="flex items-center gap-2">
+                    <Tv className="w-4 h-4" /> Download from Anime Salt (Dedicated)
+                  </span>
+                  <Download className="w-4 h-4 text-white" />
+                </a>
+              </div>
+            )}
+
+            {/* HDHub4u Qualities for Movies / Standard Content */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <a
                 href={dl480}
@@ -311,7 +360,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-blue-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 480p SD
+                  <Film className="w-4 h-4" /> 480p (HDHub4u)
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
@@ -323,7 +372,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-emerald-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 720p HD
+                  <Film className="w-4 h-4" /> 720p (HDHub4u)
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
@@ -335,21 +384,14 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-purple-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 1080p FHD
+                  <Film className="w-4 h-4" /> 1080p (HDHub4u)
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <a
-                href={animeSaltDl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-lg bg-red-600/80 hover:bg-red-600 px-4 py-2.5 text-xs font-bold text-white transition shadow-md"
-              >
-                <Tv className="h-4 w-4" /> Anime Salt Download
-              </a>
+            {/* General Secondary Mirrors */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <a
                 href={filmyzillaUrl}
                 target="_blank"
@@ -364,7 +406,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 rounded-lg bg-blue-600/80 hover:bg-blue-600 px-4 py-2.5 text-xs font-bold text-white transition"
               >
-                <Archive className="h-4 w-4" /> Internet Archive
+                <Archive className="h-4 w-4" /> Internet Archive Mirror
               </a>
             </div>
           </div>
