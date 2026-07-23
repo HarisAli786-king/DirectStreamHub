@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film, Tv, HardDrive } from "lucide-react";
+import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film, Tv } from "lucide-react";
 import type { MediaItem, CastMember, Comment } from "../lib/types";
 import { fetchDetails, fetchCredits } from "../lib/tmdb";
 import { getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
@@ -80,21 +80,35 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
   ];
 
-  // 🌸 Working Anime Streaming Fallbacks
+  // 🌸 Working Dedicated Anime Streaming Servers
   const animeServers = [
     {
-      name: "Anime Player 1 (VidSrc Pro)",
+      name: "Anime Server 1 (VidSrc Me)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.pro/embed/movie/${id}`
+          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-      name: "Anime Player 2 (VidSrc XYZ)",
+      name: "Anime Server 2 (VidSrc ICU)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.xyz/embed/movie/${id}`
+          ? `https://vidsrc.icu/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.icu/embed/movie/${id}`
+    },
+    {
+      name: "Anime Server 3 (VidSrc PM)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pm/embed/movie/${id}`
+    },
+    {
+      name: "Anime Server 4 (AutoEmbed Co)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
+          : `https://autoembed.co/movie/tmdb/${id}`
     }
   ];
 
@@ -173,21 +187,12 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // 📥 Working Download & External Search Fallbacks
+  // 📥 Download Search Links
   const queryTitle = item.title;
 
-  // Working Mega Download Search Fallback
-  const megaDownloadUrl = (item as any)?.megaLink
-    ? (item as any).megaLink
-    : `https://www.google.com/search?q=${encodeURIComponent(queryTitle + " site:mega.nz/folder OR site:mega.nz/file")}`;
-
-  // Working HDHub4u Search
   const dl480 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
   const dl720 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
   const dl1080 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 1080p")}`;
-
-  // Anime Search Mirror
-  const animeSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(queryTitle + " watch anime sub dub online")}`;
 
   const customFallback = item.custom && item.customWatchLink ? item.customWatchLink : null;
   const archiveUrl = customFallback || getArchiveUrl(item.title);
@@ -257,11 +262,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
               </div>
             </div>
 
-            {/* Anime Servers (Shows if anime) */}
+            {/* Dedicated Anime Servers */}
             {isAnime && (
               <div className="pt-2 border-t border-white/5">
                 <p className="text-xs font-bold text-brand-red uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                  <Tv className="w-3.5 h-3.5" /> Anime Dedicated Players
+                  <Tv className="w-3.5 h-3.5" /> Dedicated Anime Servers
                 </p>
                 <div className="flex gap-1.5 flex-wrap">
                   {animeServers.map((s, idx) => {
@@ -377,35 +382,6 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
               <Download className="w-4 h-4 text-brand-red" /> Direct Download & Mirrors
             </h3>
-
-            {/* Mega & Anime Download Options */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-              <a
-                href={megaDownloadUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between rounded-lg bg-red-600/90 hover:bg-red-600 border border-white/10 px-4 py-3 text-sm font-bold text-white transition shadow-md"
-              >
-                <span className="flex items-center gap-2">
-                  <HardDrive className="w-4 h-4 text-white" /> Mega Download Search
-                </span>
-                <Download className="w-4 h-4 text-white" />
-              </a>
-
-              {isAnime && (
-                <a
-                  href={animeSearchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-lg bg-indigo-600/90 hover:bg-indigo-600 border border-white/10 px-4 py-3 text-sm font-bold text-white transition shadow-md"
-                >
-                  <span className="flex items-center gap-2">
-                    <Tv className="w-4 h-4" /> Search Anime Streaming
-                  </span>
-                  <Download className="w-4 h-4 text-white" />
-                </a>
-              )}
-            </div>
 
             {/* HDHub4u Quality Links */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
