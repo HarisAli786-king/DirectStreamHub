@@ -34,14 +34,14 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     details?.genres?.some((g) => g.name.toLowerCase().includes("animation")) ||
     (item as any)?.genre_ids?.includes(16);
 
-  // 🎬 Standard Video Embed Servers
+  // 🎬 Standard Video Embed Servers (Server 1 Fast VidSrc.me Restored & 3, 4, 5 Fixed)
   const standardServers = [
     {
-      name: "Server 1 (VidSrc CC)",
+      name: "Server 1 (VidSrc Me)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.cc/v2/embed/movie/${id}`
+          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
       name: "Server 2 (VidLink Pro)",
@@ -51,25 +51,25 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://vidlink.pro/movie/${id}`
     },
     {
-      name: "Server 3 (Embed Su)",
+      name: "Server 3 (VidSrc PM)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://embed.su/embed/tv/${id}/${s}/${e}`
-          : `https://embed.su/embed/movie/${id}`
+          ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pm/embed/movie/${id}`
     },
     {
-      name: "Server 4 (AutoEmbed)",
+      name: "Server 4 (VidSrc Pro)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
-          : `https://player.autoembed.cc/embed/movie/${id}`
+          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pro/embed/movie/${id}`
     },
     {
-      name: "Server 5 (VidSrc VIP)",
+      name: "Server 5 (VidSrc IN)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.vip/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.vip/embed/movie/${id}`
+          ? `https://vidsrc.in/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.in/embed/movie/${id}`
     },
     {
       name: "Server 6 (2Embed)",
@@ -87,7 +87,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
   ];
 
-  // 🌸 Working Dedicated Anime Streaming Servers (Updated Server 2 & 5)
+  // 🌸 Working Dedicated Anime Streaming Servers (Anime Server 2 & 5 Fixed)
   const animeServers = [
     {
       name: "Anime Server 1 (VidSrc Me)",
@@ -97,18 +97,18 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-      name: "Anime Server 2 (VidSrc Pro)",
+      name: "Anime Server 2 (VidSrc CC)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.pro/embed/movie/${id}`
+          ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.cc/v2/embed/movie/${id}`
     },
     {
-      name: "Anime Server 3 (VidSrc PM)",
+      name: "Anime Server 3 (VidSrc ICU)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.pm/embed/movie/${id}`
+          ? `https://vidsrc.icu/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.icu/embed/movie/${id}`
     },
     {
       name: "Anime Server 4 (AutoEmbed Co)",
@@ -118,11 +118,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
-      name: "Anime Server 5 (VidSrc XYZ)",
+      name: "Anime Server 5 (VidSrc Net)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.xyz/embed/movie/${id}`
+          ? `https://vidsrc.net/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.net/embed/movie/${id}`
     }
   ];
 
