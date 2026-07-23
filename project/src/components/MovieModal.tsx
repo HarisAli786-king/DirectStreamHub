@@ -87,7 +87,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
   ];
 
-  // 🌸 Working Dedicated Anime Streaming Servers
+  // 🌸 Working Dedicated Anime Streaming Servers (Updated Server 2 & 5)
   const animeServers = [
     {
       name: "Anime Server 1 (VidSrc Me)",
@@ -97,11 +97,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-      name: "Anime Server 2 (VidSrc ICU)",
+      name: "Anime Server 2 (VidSrc Pro)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.icu/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.icu/embed/movie/${id}`
+          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pro/embed/movie/${id}`
     },
     {
       name: "Anime Server 3 (VidSrc PM)",
@@ -118,11 +118,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
-      name: "Anime Server 5 (VidSrc Net)",
+      name: "Anime Server 5 (VidSrc XYZ)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.net/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.net/embed/movie/${id}`
+          ? `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.xyz/embed/movie/${id}`
     }
   ];
 
@@ -202,9 +202,10 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // 📥 Download Search Links
+  // 📥 Download & Hindi Search Links
   const queryTitle = item.title;
 
+  const dlHindi = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " Hindi")}`;
   const dl480 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
   const dl720 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
   const dl1080 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 1080p")}`;
@@ -392,14 +393,26 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </button>
           </div>
 
-          {/* 📥 Download Options */}
+          {/* 📥 Download Options & Hindi Mirrors */}
           <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
               <Download className="w-4 h-4 text-brand-red" /> Direct Download & Mirrors
             </h3>
 
-            {/* Quality Search Links */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+            {/* Quality & Hindi Search Links */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
+              <a
+                href={dlHindi}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-lg bg-orange-600/80 hover:bg-orange-600 border border-orange-500/30 px-4 py-3 text-sm font-bold text-white transition shadow-md"
+              >
+                <span className="flex items-center gap-2">
+                  <Film className="w-4 h-4" /> Hindi Dubbed
+                </span>
+                <Download className="w-4 h-4 text-white" />
+              </a>
+
               <a
                 href={dl480}
                 target="_blank"
