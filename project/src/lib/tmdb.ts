@@ -56,8 +56,21 @@ export async function fetchCategory(category: Category, page = 1): Promise<{ ite
   } else if (category.endpoint === "genre") {
     data = await tmdbFetch<TmdbResponse<TmdbMovie>>(`/discover/${type}`, { page, sort_by: "popularity.desc", with_genres: category.genreId });
   } else if (category.endpoint === "discover") {
+    const today = new Date().toISOString().split("T")[0];
+    
+    // Check agar Pakistani / Urdu category hai
+    const isPakistani = category.withOriginCountry === "PK" || category.withOriginalLanguage === "ur";
+    
+    // Pakistani content ke liye sab se NEW releases pehle dikhane ke liye sort_by change kiya gaya hai
+    const sortBy = isPakistani
+      ? (type === "tv" ? "first_air_date.desc" : "primary_release_date.desc")
+      : "popularity.desc";
+
     data = await tmdbFetch<TmdbResponse<TmdbMovie>>(`/discover/${type}`, {
-      page, sort_by: "popularity.desc",
+      page,
+      sort_by: sortBy,
+      "primary_release_date.lte": isPakistani && type === "movie" ? today : undefined,
+      "first_air_date.lte": isPakistani && type === "tv" ? today : undefined,
       with_keywords: category.withKeywords,
       with_companies: category.withCompanies,
       with_original_language: category.withOriginalLanguage,
