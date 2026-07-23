@@ -34,7 +34,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     details?.genres?.some((g) => g.name.toLowerCase().includes("animation")) ||
     (item as any)?.genre_ids?.includes(16);
 
-  // 🎬 Verified Working Standard Video Embed Servers
+  // 🎬 Standard Video Embed Servers
   const standardServers = [
     {
       name: "Server 1 (VidSrc CC)",
@@ -65,14 +65,21 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://player.autoembed.cc/embed/movie/${id}`
     },
     {
-      name: "Server 5 (2Embed)",
+      name: "Server 5 (VidSrc VIP)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://vidsrc.vip/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.vip/embed/movie/${id}`
+    },
+    {
+      name: "Server 6 (2Embed)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
           : `https://www.2embed.cc/embed/${id}`
     },
     {
-      name: "Server 6 (MultiEmbed)",
+      name: "Server 7 (MultiEmbed)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
@@ -109,10 +116,18 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
         mediaType === "tv"
           ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
           : `https://autoembed.co/movie/tmdb/${id}`
+    },
+    {
+      name: "Anime Server 5 (VidSrc Net)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://vidsrc.net/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.net/embed/movie/${id}`
     }
   ];
 
   const allServers = isAnime ? [...standardServers, ...animeServers] : standardServers;
+  const safeServerIdx = serverIdx < allServers.length ? serverIdx : 0;
 
   useEffect(() => {
     if (!item) return;
@@ -181,7 +196,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const watchUrl =
     item.custom && item.customWatchLink
       ? item.customWatchLink
-      : allServers[serverIdx]?.getUrl(item.id, item.mediaType, season, episode);
+      : allServers[safeServerIdx]?.getUrl(item.id, item.mediaType, season, episode);
 
   const seasons = details?.seasons?.filter((s) => s.season_number > 0) || [];
   const currentSeason = seasons.find((s) => s.season_number === season);
@@ -204,7 +219,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
       onClick={onClose}
     >
       <div
-        className="relative bg-base-card rounded-2xl max-w-4xl w-full my-4 overflow-hidden animate-scale-in"
+        className="relative bg-base-card rounded-2xl max-w-4xl w-full my-4 overflow-hidden animate-scale-in border border-white/10"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -253,7 +268,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                     key={s.name}
                     onClick={() => setServerIdx(i)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                      serverIdx === i ? "bg-brand-red text-white" : "bg-white/10 text-white/70 hover:bg-white/20"
+                      safeServerIdx === i ? "bg-brand-red text-white" : "bg-white/10 text-white/70 hover:bg-white/20"
                     }`}
                   >
                     {s.name}
@@ -276,7 +291,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                         key={s.name}
                         onClick={() => setServerIdx(globalIdx)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                          serverIdx === globalIdx
+                          safeServerIdx === globalIdx
                             ? "bg-brand-red text-white"
                             : "bg-white/10 text-white/70 hover:bg-white/20"
                         }`}
@@ -383,7 +398,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
               <Download className="w-4 h-4 text-brand-red" /> Direct Download & Mirrors
             </h3>
 
-            {/* HDHub4u Quality Links */}
+            {/* Quality Search Links */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <a
                 href={dl480}
