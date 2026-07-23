@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film, Tv } from "lucide-react";
+import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film, Tv, Calendar } from "lucide-react";
 import type { MediaItem, CastMember, Comment } from "../lib/types";
 import { fetchDetails, fetchCredits } from "../lib/tmdb";
 import { getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
@@ -34,7 +34,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     details?.genres?.some((g) => g.name.toLowerCase().includes("animation")) ||
     (item as any)?.genre_ids?.includes(16);
 
-  // 🎬 Standard Video Embed Servers (Server 1 Fast VidSrc.me Restored & 3, 4, 5 Fixed)
+  // 🎬 Standard Video Embed Servers (Fast & Updated Dynamic TMDB Servers)
   const standardServers = [
     {
       name: "Server 1 (VidSrc Me)",
@@ -58,18 +58,18 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://vidsrc.pm/embed/movie/${id}`
     },
     {
-      name: "Server 4 (VidSrc Pro)",
+      name: "Server 4 (SmashyStream)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.pro/embed/movie/${id}`
+          ? `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://embed.smashystream.com/playere.php?tmdb=${id}`
     },
     {
-      name: "Server 5 (VidSrc IN)",
+      name: "Server 5 (AutoEmbed CC)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.in/embed/tv/${id}/${s}/${e}`
-          : `https://vidsrc.in/embed/movie/${id}`
+          ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
+          : `https://player.autoembed.cc/embed/movie/${id}`
     },
     {
       name: "Server 6 (2Embed)",
@@ -87,7 +87,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
   ];
 
-  // 🌸 Working Dedicated Anime Streaming Servers (Anime Server 2 & 5 Fixed)
+  // 🌸 Working Dedicated Anime Streaming Servers
   const animeServers = [
     {
       name: "Anime Server 1 (VidSrc Me)",
@@ -202,7 +202,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // 📥 Download & Hindi Search Links
+  // 📥 Download & Search Links
   const queryTitle = item.title;
 
   const dlHindi = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " Hindi")}`;
@@ -213,6 +213,9 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const customFallback = item.custom && item.customWatchLink ? item.customWatchLink : null;
   const archiveUrl = customFallback || getArchiveUrl(item.title);
   const filmyzillaUrl = customFallback || getFilmyzillaUrl(item.title, item.mediaType);
+
+  // Release date text resolve karein
+  const releaseDateStr = details?.release_date || details?.first_air_date || item.releaseDate;
 
   return (
     <div
@@ -359,19 +362,34 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             <div className="flex-1 min-w-0">
               <h2 className="text-xl sm:text-2xl font-bold mb-2">{details?.title || details?.name || item.title}</h2>
               {details?.tagline && <p className="text-brand-red text-sm italic mb-2">{details.tagline}</p>}
+              
               <div className="flex flex-wrap items-center gap-3 text-sm text-white/60 mb-3">
+                {/* Rating */}
                 {item.rating > 0 && (
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 font-semibold text-yellow-400">
                     <Star className="w-4 h-4 text-brand-red fill-brand-red" /> {item.rating.toFixed(1)}
                   </span>
                 )}
+
+                {/* 📅 Release Date Badge */}
+                {releaseDateStr && (
+                  <span className="flex items-center gap-1 text-white/90 bg-white/10 px-2.5 py-0.5 rounded text-xs font-semibold border border-white/10">
+                    <Calendar className="w-3.5 h-3.5 text-brand-red" />
+                    Released: {releaseDateStr}
+                  </span>
+                )}
+
+                {/* Runtime */}
                 {details?.runtime ? <span>{details.runtime} min</span> : null}
+
+                {/* Genres */}
                 {details?.genres?.slice(0, 3).map((g) => (
                   <span key={g.id} className="px-2 py-0.5 bg-white/10 rounded text-xs">
                     {g.name}
                   </span>
                 ))}
               </div>
+
               <p className="text-white/70 text-sm leading-relaxed">{details?.overview || item.overview}</p>
             </div>
           </div>
