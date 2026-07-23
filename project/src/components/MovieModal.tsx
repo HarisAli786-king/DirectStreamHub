@@ -29,10 +29,12 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // Safe check for Anime genre
-  const isAnime = details?.genres?.some(g => g.name.toLowerCase() === "animation") || (item as any)?.genre_ids?.includes(16);
+  // Safe check for Anime genre or animation keyword
+  const isAnime =
+    details?.genres?.some((g) => g.name.toLowerCase().includes("animation")) ||
+    (item as any)?.genre_ids?.includes(16);
 
-  // 🎬 Updated Working Standard Servers
+  // 🎬 Verified Working Standard Video Embed Servers
   const standardServers = [
     {
       name: "Server 1 (VidSrc CC)",
@@ -78,21 +80,21 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
   ];
 
-  // 🌸 Dedicated Anime Servers
+  // 🌸 Working Anime Streaming Fallbacks
   const animeServers = [
     {
-      name: "Anime Server 1 (VidSrc Anime)",
+      name: "Anime Player 1 (VidSrc Pro)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-          : `https://vidsrc.me/embed/movie?tmdb=${id}`
+          ? `https://vidsrc.pro/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.pro/embed/movie/${id}`
     },
     {
-      name: "Anime Server 2 (AnimeSalt Player)",
+      name: "Anime Player 2 (VidSrc XYZ)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://animesalt.link/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-          : `https://animesalt.link/embed/movie?tmdb=${id}`
+          ? `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.xyz/embed/movie/${id}`
     }
   ];
 
@@ -171,18 +173,22 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // 📥 Download & Mega Mirror Links
+  // 📥 Working Download & External Search Fallbacks
   const queryTitle = item.title;
+
+  // Working Mega Download Search Fallback
+  const megaDownloadUrl = (item as any)?.megaLink
+    ? (item as any).megaLink
+    : `https://www.google.com/search?q=${encodeURIComponent(queryTitle + " site:mega.nz/folder OR site:mega.nz/file")}`;
+
+  // Working HDHub4u Search
   const dl480 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
   const dl720 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
   const dl1080 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 1080p")}`;
 
-  // Mega Cloud Download Link (Custom Link or Search Link)
-  const megaDownloadUrl = (item as any)?.megaLink 
-    ? (item as any).megaLink 
-    : `https://mega.nz/folder/search#${encodeURIComponent(queryTitle)}`;
+  // Anime Search Mirror
+  const animeSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(queryTitle + " watch anime sub dub online")}`;
 
-  const animeSaltUrl = `https://animesalt.link/search?q=${encodeURIComponent(queryTitle)}`;
   const customFallback = item.custom && item.customWatchLink ? item.customWatchLink : null;
   const archiveUrl = customFallback || getArchiveUrl(item.title);
   const filmyzillaUrl = customFallback || getFilmyzillaUrl(item.title, item.mediaType);
@@ -231,11 +237,10 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
         {/* Server & Season Selector */}
         {playing && !(item.custom && item.customWatchLink) && (
           <div className="px-4 sm:px-6 py-3 border-b border-white/5 bg-zinc-900/50 space-y-3">
-            
             {/* Standard Servers */}
             <div>
               <p className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1.5">
-                Standard Streaming Servers
+                Streaming Servers
               </p>
               <div className="flex gap-1.5 flex-wrap">
                 {standardServers.map((s, i) => (
@@ -252,11 +257,11 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
               </div>
             </div>
 
-            {/* Anime Servers */}
+            {/* Anime Servers (Shows if anime) */}
             {isAnime && (
               <div className="pt-2 border-t border-white/5">
                 <p className="text-xs font-bold text-brand-red uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                  <Tv className="w-3.5 h-3.5" /> Anime Dedicated Servers
+                  <Tv className="w-3.5 h-3.5" /> Anime Dedicated Players
                 </p>
                 <div className="flex gap-1.5 flex-wrap">
                   {animeServers.map((s, idx) => {
@@ -266,7 +271,9 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                         key={s.name}
                         onClick={() => setServerIdx(globalIdx)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                          serverIdx === globalIdx ? "bg-brand-red text-white" : "bg-white/10 text-white/70 hover:bg-white/20"
+                          serverIdx === globalIdx
+                            ? "bg-brand-red text-white"
+                            : "bg-white/10 text-white/70 hover:bg-white/20"
                         }`}
                       >
                         {s.name}
@@ -365,13 +372,13 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </button>
           </div>
 
-          {/* 📥 Direct & Mega Download Options */}
+          {/* 📥 Download Options */}
           <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
-              <Download className="w-4 h-4 text-brand-red" /> Direct & Fast Download Options
+              <Download className="w-4 h-4 text-brand-red" /> Direct Download & Mirrors
             </h3>
 
-            {/* 🔴 Dedicated Mega Cloud Download Button */}
+            {/* Mega & Anime Download Options */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <a
                 href={megaDownloadUrl}
@@ -380,20 +387,20 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-red-600/90 hover:bg-red-600 border border-white/10 px-4 py-3 text-sm font-bold text-white transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <HardDrive className="w-4 h-4 text-white" /> Mega Cloud Fast Download
+                  <HardDrive className="w-4 h-4 text-white" /> Mega Download Search
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
 
               {isAnime && (
                 <a
-                  href={animeSaltUrl}
+                  href={animeSearchUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between rounded-lg bg-indigo-600/90 hover:bg-indigo-600 border border-white/10 px-4 py-3 text-sm font-bold text-white transition shadow-md"
                 >
                   <span className="flex items-center gap-2">
-                    <Tv className="w-4 h-4" /> Anime Salt Mirror
+                    <Tv className="w-4 h-4" /> Search Anime Streaming
                   </span>
                   <Download className="w-4 h-4 text-white" />
                 </a>
@@ -439,7 +446,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
               </a>
             </div>
 
-            {/* Secondary External Mirrors */}
+            {/* Secondary Mirrors */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <a
                 href={filmyzillaUrl}
