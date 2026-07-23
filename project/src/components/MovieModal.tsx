@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film, Tv } from "lucide-react";
+import { X, Play, Heart, Star, Download, ChevronDown, Send, Loader2, Archive, Film, Tv, HardDrive } from "lucide-react";
 import type { MediaItem, CastMember, Comment } from "../lib/types";
 import { fetchDetails, fetchCredits } from "../lib/tmdb";
 import { getArchiveUrl, getFilmyzillaUrl } from "../lib/streaming";
@@ -29,17 +29,17 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const [posting, setPosting] = useState(false);
   const [fav, setFav] = useState(false);
 
-  // Check if current item is Anime (safe check for genre_ids)
+  // Safe check for Anime genre
   const isAnime = details?.genres?.some(g => g.name.toLowerCase() === "animation") || (item as any)?.genre_ids?.includes(16);
 
-  // 🎬 6 Standard Movie/TV Servers
+  // 🎬 Updated Working Standard Servers
   const standardServers = [
     {
-      name: "Server 1 (VidSrc ME)",
+      name: "Server 1 (VidSrc CC)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
-          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-          : `https://vidsrc.me/embed/movie?tmdb=${id}`
+          ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
+          : `https://vidsrc.cc/v2/embed/movie/${id}`
     },
     {
       name: "Server 2 (VidLink Pro)",
@@ -49,25 +49,25 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
           : `https://vidlink.pro/movie/${id}`
     },
     {
-      name: "Server 3 (2Embed Global)",
-      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
-        mediaType === "tv"
-          ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-          : `https://www.2embed.cc/embed/${id}`
-    },
-    {
-      name: "Server 4 (Embed Su)",
+      name: "Server 3 (Embed Su)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://embed.su/embed/tv/${id}/${s}/${e}`
           : `https://embed.su/embed/movie/${id}`
     },
     {
-      name: "Server 5 (AutoEmbed)",
+      name: "Server 4 (AutoEmbed)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`
           : `https://player.autoembed.cc/embed/movie/${id}`
+    },
+    {
+      name: "Server 5 (2Embed)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
+          : `https://www.2embed.cc/embed/${id}`
     },
     {
       name: "Server 6 (MultiEmbed)",
@@ -78,25 +78,24 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
     }
   ];
 
-  // 🌸 Dedicated Anime Servers (Original Anime Salt - Mega links included in their player)
+  // 🌸 Dedicated Anime Servers
   const animeServers = [
     {
-      name: "Anime Server 1 (Anime Salt playX)",
+      name: "Anime Server 1 (VidSrc Anime)",
+      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
+        mediaType === "tv"
+          ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+          : `https://vidsrc.me/embed/movie?tmdb=${id}`
+    },
+    {
+      name: "Anime Server 2 (AnimeSalt Player)",
       getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
         mediaType === "tv"
           ? `https://animesalt.link/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
           : `https://animesalt.link/embed/movie?tmdb=${id}`
-    },
-    {
-      name: "Anime Server 2 (Anime Salt Abyss)",
-      getUrl: (id: string | number, mediaType: string, s: number, e: number) =>
-        mediaType === "tv"
-          ? `https://animesalt.link/embed/abyss/tv/${id}/${s}/${e}`
-          : `https://animesalt.link/embed/abyss/movie/${id}`
     }
   ];
 
-  // Order: Standard Servers FIRST, Anime Servers SECOND
   const allServers = isAnime ? [...standardServers, ...animeServers] : standardServers;
 
   useEffect(() => {
@@ -172,13 +171,18 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
   const currentSeason = seasons.find((s) => s.season_number === season);
   const episodeCount = currentSeason?.episode_count || 20;
 
-  // 📥 Download Links (HDHub4u & Dedicated Anime Salt)
+  // 📥 Download & Mega Mirror Links
   const queryTitle = item.title;
   const dl480 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 480p")}`;
   const dl720 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 720p")}`;
   const dl1080 = `https://new3.hdhub4u.cl/?s=${encodeURIComponent(queryTitle + " 1080p")}`;
-  const animeSaltDl = `https://animesalt.link/search?q=${encodeURIComponent(queryTitle)}`;
 
+  // Mega Cloud Download Link (Custom Link or Search Link)
+  const megaDownloadUrl = (item as any)?.megaLink 
+    ? (item as any).megaLink 
+    : `https://mega.nz/folder/search#${encodeURIComponent(queryTitle)}`;
+
+  const animeSaltUrl = `https://animesalt.link/search?q=${encodeURIComponent(queryTitle)}`;
   const customFallback = item.custom && item.customWatchLink ? item.customWatchLink : null;
   const archiveUrl = customFallback || getArchiveUrl(item.title);
   const filmyzillaUrl = customFallback || getFilmyzillaUrl(item.title, item.mediaType);
@@ -228,10 +232,10 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
         {playing && !(item.custom && item.customWatchLink) && (
           <div className="px-4 sm:px-6 py-3 border-b border-white/5 bg-zinc-900/50 space-y-3">
             
-            {/* Standard 6 Servers Heading & Buttons (Rendered FIRST) */}
+            {/* Standard Servers */}
             <div>
               <p className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1.5">
-                Standard Servers
+                Standard Streaming Servers
               </p>
               <div className="flex gap-1.5 flex-wrap">
                 {standardServers.map((s, i) => (
@@ -248,7 +252,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
               </div>
             </div>
 
-            {/* Anime Heading & Servers if Anime (Rendered AFTER Standard Servers) */}
+            {/* Anime Servers */}
             {isAnime && (
               <div className="pt-2 border-t border-white/5">
                 <p className="text-xs font-bold text-brand-red uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
@@ -256,7 +260,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 </p>
                 <div className="flex gap-1.5 flex-wrap">
                   {animeServers.map((s, idx) => {
-                    const globalIdx = standardServers.length + idx; // Calculate correct index
+                    const globalIdx = standardServers.length + idx;
                     return (
                       <button
                         key={s.name}
@@ -361,30 +365,42 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
             </button>
           </div>
 
-          {/* 📥 Download Options */}
+          {/* 📥 Direct & Mega Download Options */}
           <div className="mt-6 border-t border-white/10 pt-5">
             <h3 className="text-sm font-bold mb-3 text-white/80 flex items-center gap-2">
-              <Download className="w-4 h-4 text-brand-red" /> Download Options
+              <Download className="w-4 h-4 text-brand-red" /> Direct & Fast Download Options
             </h3>
 
-            {/* Anime Dedicated Download Button (Shows if Anime) */}
-            {isAnime && (
-              <div className="mb-3">
+            {/* 🔴 Dedicated Mega Cloud Download Button */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              <a
+                href={megaDownloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-lg bg-red-600/90 hover:bg-red-600 border border-white/10 px-4 py-3 text-sm font-bold text-white transition shadow-md"
+              >
+                <span className="flex items-center gap-2">
+                  <HardDrive className="w-4 h-4 text-white" /> Mega Cloud Fast Download
+                </span>
+                <Download className="w-4 h-4 text-white" />
+              </a>
+
+              {isAnime && (
                 <a
-                  href={animeSaltDl}
+                  href={animeSaltUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-lg bg-red-600/90 hover:bg-red-600 border border-white/10 px-4 py-3 text-sm font-bold text-white transition shadow-md"
+                  className="flex items-center justify-between rounded-lg bg-indigo-600/90 hover:bg-indigo-600 border border-white/10 px-4 py-3 text-sm font-bold text-white transition shadow-md"
                 >
                   <span className="flex items-center gap-2">
-                    <Tv className="w-4 h-4" /> Download from Anime Salt (Dedicated)
+                    <Tv className="w-4 h-4" /> Anime Salt Mirror
                   </span>
                   <Download className="w-4 h-4 text-white" />
                 </a>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* HDHub4u Qualities for Movies / Standard Content */}
+            {/* HDHub4u Quality Links */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <a
                 href={dl480}
@@ -393,7 +409,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-blue-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 480p (HDHub4u)
+                  <Film className="w-4 h-4" /> 480p Search
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
@@ -405,7 +421,7 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-emerald-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 720p (HDHub4u)
+                  <Film className="w-4 h-4" /> 720p Search
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
@@ -417,13 +433,13 @@ export default function MovieModal({ item, autoPlay, onClose, onToggleFav, onReq
                 className="flex items-center justify-between rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 px-4 py-3 text-sm font-bold text-purple-400 transition shadow-md"
               >
                 <span className="flex items-center gap-2">
-                  <Film className="w-4 h-4" /> 1080p (HDHub4u)
+                  <Film className="w-4 h-4" /> 1080p Search
                 </span>
                 <Download className="w-4 h-4 text-white" />
               </a>
             </div>
 
-            {/* General Secondary Mirrors */}
+            {/* Secondary External Mirrors */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <a
                 href={filmyzillaUrl}
