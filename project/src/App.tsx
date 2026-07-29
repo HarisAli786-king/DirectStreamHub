@@ -45,35 +45,71 @@ function AppInner() {
   const openSignIn = () => setSignInAction("join the community");
 
   return (
-    <div className="min-h-screen bg-base-black text-white">
-      <Header onSearch={handleSearch} onAddMovie={handleAddMovie} onOpenSettings={() => setSettingsOpen(true)} onNavigate={navigate} currentPage={page === "search" ? "home" : page} searchActive={page === "search"} onClearSearch={clearSearch} onSignIn={openSignIn} />
-      <main>
-        {page === "home" && <Home onItemClick={handleItemClick} onToggleFav={handleToggleFav} onSeeAll={handleSeeAll} favorites={favorites} refreshKey={refreshKey} />}
-        {page === "seeall" && currentCategory && <SeeAllView category={currentCategory} onItemClick={handleItemClick} onToggleFav={handleToggleFav} onBack={() => { setPage("home"); setCurrentCategory(null); }} />}
-        {page === "search" && <SearchResults query={searchQuery} items={searchItems} loading={searchLoading} onItemClick={handleItemClick} onToggleFav={handleToggleFav} />}
-        {page === "chat" && <CommunityChat onRequestSignIn={requestSignIn} />}
-      </main>
-      <footer className="border-t border-white/5 mt-12 py-8 px-4 md:px-8">
+    <div className="min-h-screen bg-base-black text-white flex flex-col justify-between">
+      <div>
+        <Header onSearch={handleSearch} onAddMovie={handleAddMovie} onOpenSettings={() => setSettingsOpen(true)} onNavigate={navigate} currentPage={page === "search" ? "home" : page} searchActive={page === "search"} onClearSearch={clearSearch} onSignIn={openSignIn} />
+        <main className="max-w-6xl mx-auto px-4 md:px-8 py-6">
+          {page === "home" && <Home onItemClick={handleItemClick} onToggleFav={handleToggleFav} onSeeAll={handleSeeAll} favorites={favorites} refreshKey={refreshKey} />}
+          {page === "seeall" && currentCategory && <SeeAllView category={currentCategory} onItemClick={handleItemClick} onToggleFav={handleToggleFav} onBack={() => { setPage("home"); setCurrentCategory(null); }} />}
+          {page === "search" && <SearchResults query={searchQuery} items={searchItems} loading={searchLoading} onItemClick={handleItemClick} onToggleFav={handleToggleFav} />}
+          {page === "chat" && <CommunityChat onRequestSignIn={requestSignIn} />}
+
+          {/* Legal Pages Views */}
+          {page === "about" && (
+            <div className="bg-zinc-900/60 p-6 rounded-xl border border-white/10 my-8">
+              <h1 className="text-3xl font-bold mb-4 text-brand-red">About Us</h1>
+              <p className="text-gray-300 leading-relaxed mb-4">Welcome to Direct Stream Hub – your ultimate destination for discovering and streaming trailers, reviews, and information about the latest Hollywood, Bollywood, and Pakistani movies and TV series.</p>
+              <p className="text-gray-300 leading-relaxed">Our mission is to provide movie enthusiasts with a seamless platform to explore trending entertainment completely free of charge.</p>
+            </div>
+          )}
+
+          {page === "contact" && (
+            <div className="bg-zinc-900/60 p-6 rounded-xl border border-white/10 my-8">
+              <h1 className="text-3xl font-bold mb-4 text-brand-red">Contact Us</h1>
+              <p className="text-gray-300 leading-relaxed mb-4">If you have any questions, feedback, or copyright concerns regarding our content, feel free to reach out to us.</p>
+              <p className="text-gray-300">Email: <span className="text-white font-semibold">support@directstreamhub.com</span></p>
+            </div>
+          )}
+
+          {page === "privacy" && (
+            <div className="bg-zinc-900/60 p-6 rounded-xl border border-white/10 my-8">
+              <h1 className="text-3xl font-bold mb-4 text-brand-red">Privacy Policy</h1>
+              <p className="text-gray-300 leading-relaxed mb-4">At Direct Stream Hub, accessible from our website, your privacy is important to us. This Privacy Policy document outlines the types of information collected and recorded by Direct Stream Hub and how we use it.</p>
+              <p className="text-gray-300 leading-relaxed">We use third-party advertising companies to serve ads when you visit our website. These companies may use information about your visits to provide advertisements about goods and services of interest to you.</p>
+            </div>
+          )}
+
+          {page === "dmca" && (
+            <div className="bg-zinc-900/60 p-6 rounded-xl border border-white/10 my-8">
+              <h1 className="text-3xl font-bold mb-4 text-brand-red">DMCA Disclaimer</h1>
+              <p className="text-gray-300 leading-relaxed mb-4">Direct Stream Hub complies with 17 U.S.C. * 512 and the Digital Millennium Copyright Act (DMCA). It is our policy to respond to any infringement notices and take appropriate actions.</p>
+              <p className="text-gray-300 leading-relaxed">We do not host any video files on our servers. All contents are provided by non-affiliated third parties accessed via public APIs.</p>
+            </div>
+          )}
+        </main>
+      </div>
+
+      <footer className="border-t border-white/5 py-8 px-4 md:px-8 mt-auto">
         <div className="max-w-6xl mx-auto">
           <AdBanner slot="footer" />
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
             <div className="flex items-center gap-2"><div className="w-7 h-7 rounded bg-brand-red flex items-center justify-center text-white font-bold text-sm">D</div><span className="font-bold">DirectStreamHub</span></div>
             
-            {/* Legal Pages Links */}
             <div className="flex flex-wrap justify-center gap-3 text-xs text-white/60">
-              <a href="/about" className="hover:text-white transition-colors">About Us</a>
+              <button onClick={() => setPage("about")} className="hover:text-white transition-colors bg-transparent border-none cursor-pointer">About Us</button>
               <span>·</span>
-              <a href="/contact" className="hover:text-white transition-colors">Contact Us</a>
+              <button onClick={() => setPage("contact")} className="hover:text-white transition-colors bg-transparent border-none cursor-pointer">Contact Us</button>
               <span>·</span>
-              <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+              <button onClick={() => setPage("privacy")} className="hover:text-white transition-colors bg-transparent border-none cursor-pointer">Privacy Policy</button>
               <span>·</span>
-              <a href="/dmca" className="hover:text-white transition-colors">DMCA</a>
+              <button onClick={() => setPage("dmca")} className="hover:text-white transition-colors bg-transparent border-none cursor-pointer">DMCA</button>
             </div>
 
             <p className="text-xs text-white/40 text-center">Powered by TMDB · Streaming via third-party servers · For educational use only</p>
           </div>
         </div>
       </footer>
+
       <MovieModal item={modalItem} autoPlay={autoPlay} onClose={() => setModalItem(null)} onToggleFav={handleToggleFav} onRequestSignIn={requestSignIn} />
       <AddMovieModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={() => setRefreshKey((k) => k + 1)} onRequestSignIn={() => setSignInAction("add a movie")} isAuthed={!!profile} />
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
