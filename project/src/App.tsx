@@ -14,7 +14,7 @@ import type { Category, MediaItem } from "./lib/types";
 import { storage } from "./lib/storage";
 import { searchMulti } from "./lib/tmdb";
 
-type Page = "home" | "chat" | "seeall" | "search";
+type Page = "home" | "chat" | "seeall" | "search" | "about" | "contact" | "privacy" | "dmca";
 
 function AppInner() {
   const { profile } = useProfile();
