@@ -58,6 +58,18 @@ function AppInner() {
           <AdBanner slot="footer" />
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
             <div className="flex items-center gap-2"><div className="w-7 h-7 rounded bg-brand-red flex items-center justify-center text-white font-bold text-sm">D</div><span className="font-bold">DirectStreamHub</span></div>
+            
+            {/* Legal Pages Links */}
+            <div className="flex flex-wrap justify-center gap-3 text-xs text-white/60">
+              <a href="/about" className="hover:text-white transition-colors">About Us</a>
+              <span>·</span>
+              <a href="/contact" className="hover:text-white transition-colors">Contact Us</a>
+              <span>·</span>
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+              <span>·</span>
+              <a href="/dmca" className="hover:text-white transition-colors">DMCA</a>
+            </div>
+
             <p className="text-xs text-white/40 text-center">Powered by TMDB · Streaming via third-party servers · For educational use only</p>
           </div>
         </div>
